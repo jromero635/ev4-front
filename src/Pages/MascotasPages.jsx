@@ -23,9 +23,10 @@ function MascotasPages() {
 
   return (
     <div className="container mt-4">
-      <h1 className="text-center mb-4">Mascotas</h1>
+      <h1>Mascotas</h1>
+
       <button
-        className="btn btn-primary btn-lg"
+        className="btn btn-primary mb-3"
         onClick={() => navigate("/mascotas/formulario")}
       >
         Agregar Mascota
