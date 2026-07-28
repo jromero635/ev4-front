@@ -1,6 +1,43 @@
+import api from "../api/api";
 import "./css/MascotasList.css";
+import { useNavigate } from "react-router-dom";
 
-function MascotasList({ lista }) {
+function MascotasList({ lista, obtenerMascotas }) {
+  const navigate = useNavigate();
+  const eliminarMascota = async (id) => {
+    try {
+      const respuesta = await api.delete(`/mascotas/${id}/`);
+
+      switch (respuesta.status) {
+        case 204:
+          alert("Mascota eliminada con éxito.");
+          obtenerMascotas();
+          break;
+
+        default:
+          alert("Respuesta inesperada.");
+          break;
+      }
+    } catch (error) {
+      switch (error.response?.status) {
+        case 404:
+          alert("La mascota no existe.");
+          break;
+
+        case 500:
+          alert("Error interno del servidor.");
+          break;
+
+        default:
+          alert("Ocurrió un error.");
+          break;
+      }
+
+      console.log(error.response?.status);
+      console.log(error.response?.data);
+    }
+  };
+
   return (
     <div className="row">
       {lista.map((mascota) => (
@@ -34,16 +71,35 @@ function MascotasList({ lista }) {
               <p className="card-text">
                 <strong>Raza:</strong> {mascota.raza}
               </p>
+
               <p className="card-text">
                 <strong>Sexo:</strong> {mascota.sexo}
               </p>
+
               <p className="card-text">
                 <strong>Tamaño:</strong> {mascota.tamano}
               </p>
 
-              <button className="btn btn-info w-100">Ver detalle</button>
-              <button className="btn btn-warning w-100">Editar Mascota</button>
-              <button className="btn btn-danger w-100">Eliminar</button>
+              <button
+                className="btn btn-info w-100 mb-2"
+                onClick={() => navigate(`/mascotas/${mascota.id}`)}
+              >
+                Ver detalle
+              </button>
+
+              <button
+                className="btn btn-warning w-100 mb-2"
+                onClick={() => navigate(`/mascotas/formulario/${mascota.id}`)}
+              >
+                Editar Mascota
+              </button>
+
+              <button
+                className="btn btn-danger w-100"
+                onClick={() => eliminarMascota(mascota.id)}
+              >
+                Eliminar
+              </button>
             </div>
           </div>
         </div>

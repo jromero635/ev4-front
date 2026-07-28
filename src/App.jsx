@@ -1,9 +1,8 @@
 import HomePages from "./Pages/HomePages";
 import { NavLink, Routes, Route } from "react-router-dom";
 import MascotasPages from "./Pages/MascotasPages";
-import ComentariosList from "./componentes/ComentariosList";
 import MascotasForm from "./componentes/MascotasForm";
-
+import MascotaDetalle from "./Pages/MascotaDetalle";
 function App() {
   return (
     <>
@@ -18,17 +17,15 @@ function App() {
         <nav className="navbar bg-primary" data-bs-theme="dark">
           <NavLink to="/mascotas">Mascotas</NavLink>
         </nav>
-        <nav className="navbar" data-bs-theme="light">
-          <NavLink to="/comentarios">Comentarios</NavLink>
-        </nav>
       </header>
 
       <main>
         <Routes>
           <Route path="/" element={<HomePages />} />
           <Route path="/mascotas" element={<MascotasPages />} />
-          <Route path="/comentarios" element={<ComentariosList />} />
           <Route path="/mascotas/formulario" element={<MascotasForm />} />
+          <Route path="/mascotas/formulario/:id" element={<MascotasForm />} />
+          <Route path="/mascotas/:id" element={<MascotaDetalle />} />
         </Routes>
       </main>
     </>
