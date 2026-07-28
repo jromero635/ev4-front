@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "../api/api";
 import "./css/MascotasForm.css";
 
 function MascotasForm() {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
@@ -16,6 +17,30 @@ function MascotasForm() {
   const [sexo, setSexo] = useState("");
   const [tamano, setTamano] = useState("");
   const [error, setError] = useState("");
+
+  const obtenerMascota = async () => {
+    try {
+      const respuesta = await api.get(`/mascotas/${id}/`);
+
+      setNombre(respuesta.data.nombre);
+      setDescripcion(respuesta.data.descripcion);
+      setEstado(respuesta.data.estado);
+      setTipoAnimal(respuesta.data.tipo_animal);
+      setEdad(respuesta.data.edad);
+      setRaza(respuesta.data.raza);
+      setSexo(respuesta.data.sexo);
+      setTamano(respuesta.data.tamano);
+    } catch (error) {
+      console.log(error.response?.status);
+      console.log(error.response?.data);
+    }
+  };
+
+  useEffect(() => {
+    if (id) {
+      obtenerMascota();
+    }
+  }, [id]);
 
   const guardarMascota = async (e) => {
     e.preventDefault();
@@ -44,12 +69,13 @@ function MascotasForm() {
       setError("Seleccione el sexo del animal.");
       return;
     }
+
     if (tamano === "") {
       setError("Seleccione el tamaño del animal.");
       return;
     }
 
-    if (imagen === null) {
+    if (!id && imagen === null) {
       setError("Ingrese una imagen.");
       return;
     }
@@ -57,9 +83,14 @@ function MascotasForm() {
     setError("");
 
     const formData = new FormData();
+
     formData.append("nombre", nombre);
     formData.append("descripcion", descripcion);
-    formData.append("imagen", imagen);
+
+    if (imagen) {
+      formData.append("imagen", imagen);
+    }
+
     formData.append("estado", estado);
     formData.append("tipo_animal", tipoAnimal);
     formData.append("edad", edad);
@@ -68,30 +99,39 @@ function MascotasForm() {
     formData.append("tamano", tamano);
 
     try {
-      const respuesta = await api.post("/mascotas/", formData);
+      let respuesta;
 
-      if (respuesta.status === 201) {
-        alert("Mascota agregada con éxito.");
+      if (id) {
+        respuesta = await api.patch(`/mascotas/${id}/`, formData);
 
-        setNombre("");
-        setDescripcion("");
-        setEstado("");
-        setTipoAnimal("");
-        setEdad(0);
-        setRaza("");
-        setSexo("");
-        setTamano("");
-        setImagen(null);
-        setError("");
+        if (respuesta.status === 200) {
+          alert("Mascota actualizada con éxito.");
+        }
+      } else {
+        respuesta = await api.post("/mascotas/", formData);
 
-        navigate("/mascotas");
+        if (respuesta.status === 201) {
+          alert("Mascota agregada con éxito.");
+        }
       }
+
+      setNombre("");
+      setDescripcion("");
+      setEstado("");
+      setTipoAnimal("");
+      setEdad(0);
+      setRaza("");
+      setSexo("");
+      setTamano("");
+      setImagen(null);
+      setError("");
+
+      navigate("/mascotas");
     } catch (error) {
       switch (error.response?.status) {
         case 400:
-          setError("Ocurrio un error");
+          setError(Object.values(error.response?.data)[0][0]);
           break;
-
         case 401:
           setError("No autorizado.");
           break;
@@ -112,6 +152,7 @@ function MascotasForm() {
           setError("Ocurrió un error inesperado.");
           break;
       }
+
       console.log(error.response?.status);
       console.log(error.response?.data);
     }
@@ -126,14 +167,12 @@ function MascotasForm() {
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
       />
-
       <textarea
         className="form-control mb-3"
         placeholder="Descripción"
         value={descripcion}
         onChange={(e) => setDescripcion(e.target.value)}
       />
-
       <select
         className="form-select mb-3"
         value={estado}
@@ -145,7 +184,6 @@ function MascotasForm() {
         <option value="perdida">Perdida</option>
         <option value="encontrada">Encontrada</option>
       </select>
-
       <select
         className="form-select mb-3"
         value={tipoAnimal}
@@ -157,7 +195,6 @@ function MascotasForm() {
         <option value="ave">Ave</option>
         <option value="otro">Otro</option>
       </select>
-
       <input
         type="number"
         className="form-control mb-3"
@@ -165,7 +202,6 @@ function MascotasForm() {
         value={edad}
         onChange={(e) => setEdad(Number(e.target.value))}
       />
-
       <input
         type="text"
         className="form-control mb-3"
@@ -173,7 +209,6 @@ function MascotasForm() {
         value={raza}
         onChange={(e) => setRaza(e.target.value)}
       />
-
       <select
         className="form-select mb-3"
         value={sexo}
@@ -184,28 +219,28 @@ function MascotasForm() {
         <option value="hembra">Hembra</option>
         <option value="desconocido">Desconocido</option>
       </select>
-
       <select
         className="form-select mb-3"
         value={tamano}
         onChange={(e) => setTamano(e.target.value)}
       >
-        <option value="">Seleccione un Tamaño</option>
+        <option value="">Seleccione un tamaño</option>
         <option value="grande">Grande</option>
         <option value="mediano">Mediano</option>
         <option value="pequeno">Pequeño</option>
         <option value="desconocido">Desconocido</option>
       </select>
-
       <input
         type="file"
         className="form-control mb-3"
         onChange={(e) => setImagen(e.target.files[0])}
-      />
-
-      <button className="btn btn-success">Guardar Mascota</button>
+      />{" "}
+      <button className="btn btn-success">
+        {id ? "Actualizar Mascota" : "Guardar Mascota"}
+      </button>
       <p className="text-danger mt-2">{error}</p>
     </form>
   );
 }
+
 export default MascotasForm;

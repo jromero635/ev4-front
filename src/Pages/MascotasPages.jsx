@@ -32,7 +32,7 @@ function MascotasPages() {
         Agregar Mascota
       </button>
 
-      <MascotasList lista={mascotas} />
+      <MascotasList lista={mascotas} obtenerMascotas={obtenerMascotas} />
     </div>
   );
 }

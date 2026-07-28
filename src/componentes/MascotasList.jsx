@@ -1,7 +1,9 @@
 import api from "../api/api";
 import "./css/MascotasList.css";
+import { useNavigate } from "react-router-dom";
 
 function MascotasList({ lista, obtenerMascotas }) {
+  const navigate = useNavigate();
   const eliminarMascota = async (id) => {
     try {
       const respuesta = await api.delete(`/mascotas/${id}/`);
@@ -78,9 +80,17 @@ function MascotasList({ lista, obtenerMascotas }) {
                 <strong>Tamaño:</strong> {mascota.tamano}
               </p>
 
-              <button className="btn btn-info w-100 mb-2">Ver detalle</button>
+              <button
+                className="btn btn-info w-100 mb-2"
+                onClick={() => navigate(`/mascotas/${mascota.id}`)}
+              >
+                Ver detalle
+              </button>
 
-              <button className="btn btn-warning w-100 mb-2">
+              <button
+                className="btn btn-warning w-100 mb-2"
+                onClick={() => navigate(`/mascotas/formulario/${mascota.id}`)}
+              >
                 Editar Mascota
               </button>
 
