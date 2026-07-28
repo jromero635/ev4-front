@@ -45,6 +45,11 @@ function MascotasForm() {
   const guardarMascota = async (e) => {
     e.preventDefault();
 
+    if (nombre.trim() === "") {
+      setError("Nombre no puede estar vacía");
+      return;
+    }
+
     if (descripcion.trim() === "") {
       setError("Descripción no puede estar vacía");
       return;
